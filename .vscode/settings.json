@@ -1,0 +1,5 @@
+{
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}

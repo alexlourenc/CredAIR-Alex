@@ -1,0 +1,24 @@
+# Ambiente virtual
+.venv/
+venv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Checkpoints do Jupyter
+.ipynb_checkpoints/
+
+# Dados processados são gerados pelo notebook (podem ser recriados a partir de data/raw)
+data/processed/*
+!data/processed/.gitkeep
+
+# Modelos treinados (artefatos gerados)
+models/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Variáveis de ambiente / segredos
+.env
