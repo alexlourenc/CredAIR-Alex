@@ -9,9 +9,11 @@ __pycache__/
 # Checkpoints do Jupyter
 .ipynb_checkpoints/
 
-# Dados processados são gerados pelo notebook (podem ser recriados a partir de data/raw)
-data/processed/*
-!data/processed/.gitkeep
+# Camadas prata e ouro são geradas pelo notebook (recriáveis a partir da bronze)
+data/silver/*
+!data/silver/.gitkeep
+data/gold/*
+!data/gold/.gitkeep
 
 # Modelos treinados (artefatos gerados)
 models/
