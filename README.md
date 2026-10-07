@@ -10,8 +10,9 @@ Projeto de Ciência de Dados que usa o histórico de propostas de crédito da **
 ```text
 CredAIR-Alex/
 ├── data/
-│   ├── raw/            # Dados originais. Nunca são alterados.
-│   └── processed/      # Dados tratados, gerados pelo notebook (fora do Git)
+│   ├── bronze/         # 🥉 Dado original, como recebido. Nunca é alterado.
+│   ├── silver/         # 🥈 Dado limpo e validado (gerado pelo notebook, fora do Git)
+│   └── gold/           # 🥇 Dado pronto para modelagem (gerado pelo notebook, fora do Git)
 ├── notebooks/          # Notebook principal da análise (entregável)
 ├── reports/figures/    # Gráficos exportados para a apresentação
 ├── docs/               # Roadmap e registro de decisões
@@ -19,6 +20,18 @@ CredAIR-Alex/
 ├── requirements.txt    # Dependências com versões fixadas
 └── README.md
 ```
+
+## Arquitetura de dados: modelo medalhão
+
+Os dados passam por três camadas, cada uma com uma responsabilidade:
+
+| Camada | Conteúdo | Gerada na |
+|---|---|---|
+| 🥉 Bronze | `dataset.csv` exatamente como recebido | (fonte) |
+| 🥈 Prata | Dados limpos: tipos corretos, sem duplicatas, inconsistências tratadas | Fase 3 — Limpeza |
+| 🥇 Ouro | Tabela para modelagem, com as variáveis derivadas | Fase 5 — Engenharia de atributos |
+
+Transformações que "aprendem" com os dados (padronização, imputação, *one-hot encoding*) **não** ficam na camada ouro: são ajustadas apenas no conjunto de treino, dentro do `Pipeline` do scikit-learn, para evitar vazamento de dados. Detalhes na decisão D06 do [roadmap](docs/ROADMAP.md).
 
 ## Como executar
 
