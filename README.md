@@ -89,7 +89,7 @@ Os testes conferem cada regra de limpeza e de engenharia de atributos e verifica
 
 ## Simulador de propostas
 
-O simulador (pastas `api/` e `public/`) é uma página onde se informa uma proposta e se vê a probabilidade de inadimplência, a decisão pelo limiar de 0,31 e o que mais pesou na avaliação. Ela aplica as mesmas regras de limpeza e de atributos do pacote `credair` e é publicada no Vercel.
+O simulador (pastas `api/` e `public/`) é uma página onde se informa uma proposta e se vê a probabilidade de inadimplência, a decisão pelo limiar de 0,31 e o que mais pesou na avaliação. Ela aplica as mesmas regras de limpeza e de atributos do pacote `credair` e é publicada no Vercel: **[cred-air-alex.vercel.app](https://cred-air-alex.vercel.app)**.
 
 Para testar no computador:
 
