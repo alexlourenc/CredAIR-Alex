@@ -27,7 +27,7 @@ O projeto evolui em três blocos. Cada um só começa quando o anterior estiver 
 | 7 | Modelagem (baseline + Regressão Logística) | `feat: desenvolve modelo de regressao logistica` | ✅ |
 | 8 | Avaliação e interpretação | `feat: adiciona avaliacao e interpretacao do modelo` | ✅ |
 | 9 | Conclusão e apresentação | `docs: adiciona conclusao da analise` + `docs: adiciona roteiro da apresentacao` | ✅ |
-| 10 | Refatoração para `src/` + testes | `refactor: extrai pipeline para modulo` | ⬜ |
+| 10 | Refatoração para `src/` + testes | `refactor: extrai pipeline para modulo` | ✅ |
 | 11 | Aplicação | `feat: cria aplicacao de simulacao` | ⬜ |
 
 ## Registro de decisões
@@ -91,3 +91,10 @@ Cada decisão importante fica registrada aqui com o contexto, a escolha feita e 
 ### D12 — Limiar de decisão escolhido no treino (F1 máximo nas previsões fora da amostra)
 - **Resultado:** limiar de 0,31. No teste, o recall sobe de 45% para 74%, e a precisão cai de 68% para 56%.
 - **Motivo:** o falso negativo (aprovar um mau pagador) é o erro mais caro. O limiar final é uma **decisão de negócio** e deve ser revisto com os custos reais.
+
+### D13 — Regras do notebook consolidadas no pacote `credair`
+- **Contexto:** a Fase 11 (aplicação) precisa aplicar a uma proposta nova exatamente as mesmas regras de limpeza, atributos e modelo do notebook. Copiar o código para a aplicação criaria duas versões que podem divergir.
+- **Decisão:** mover `limpar`, `criar_atributos`, `modelo_logistico`, `metricas` e a escolha do limiar para `src/credair/`, com as constantes (caminhos, semente, listas de variáveis) em `config.py`. O notebook importa o pacote e mostra o código das funções principais com `inspect.getsource`, para continuar legível como entregável.
+- **Instalação:** `pyproject.toml` + linha `-e .` no `requirements.txt`. O modo editável faz alterações em `src/` valerem sem reinstalar.
+- **Testes:** `pytest` com dados pequenos montados à mão (um exemplo de cada problema P1 a P5) e um **teste de regressão** que refaz o pipeline inteiro a partir da bronze e confere ROC-AUC 0,781, recall 73,8% e limiar 0,31. Se uma mudança futura alterar os resultados, o teste avisa. Os testes rodam no GitHub Actions a cada push.
+- **Conferência:** o notebook foi reexecutado do zero depois da mudança. As saídas e os 11 gráficos ficaram idênticos aos anteriores.

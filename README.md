@@ -15,10 +15,17 @@ CredAIR-Alex/
 │   └── gold/           # 🥇 Dado pronto para modelagem (gerado pelo notebook, fora do Git)
 ├── notebooks/
 │   └── analise_credito.ipynb   # Notebook principal da análise (entregável)
+├── src/credair/        # Pacote com as regras validadas no notebook
+│   ├── config.py       #   caminhos, semente e listas de variáveis
+│   ├── limpeza.py      #   bronze → prata
+│   ├── atributos.py    #   prata → ouro
+│   └── modelo.py       #   pipeline, métricas e escolha do limiar
+├── tests/              # Testes automatizados (pytest)
 ├── reports/figures/    # Gráficos exportados para a apresentação
 ├── docs/               # Roadmap e registro de decisões
 ├── .vscode/            # Configurações e extensões recomendadas do VS Code
-├── requirements.txt    # Dependências com versões fixadas
+├── pyproject.toml      # Torna o pacote credair instalável
+├── requirements.txt    # Dependências com versões fixadas (inclui o pacote credair)
 └── README.md
 ```
 
@@ -50,7 +57,7 @@ Transformações que "aprendem" com os dados (padronização, imputação, *one-
 
 ## Como executar
 
-Pré-requisitos: **Python 3.11+** e **VS Code** com as extensões recomendadas (o VS Code sugere a instalação ao abrir a pasta).
+Pré-requisitos: **Python 3.12+** (o numpy fixado no `requirements.txt` não tem versão para o 3.11) e **VS Code** com as extensões recomendadas (o VS Code sugere a instalação ao abrir a pasta).
 
 ```bash
 # 1. Clonar o repositório
@@ -62,11 +69,19 @@ python -m venv .venv
 source .venv/bin/activate      # Linux/macOS
 # .venv\Scripts\activate       # Windows
 
-# 3. Instalar as dependências
+# 3. Instalar as dependências (inclui o pacote credair, da pasta src/)
 pip install -r requirements.txt
 ```
 
 Depois, abra `notebooks/analise_credito.ipynb` no VS Code, selecione o kernel do `.venv` e use **Run All**. O notebook gera as camadas prata e ouro em `data/` e os gráficos em `reports/figures/`.
+
+O notebook importa as funções do pacote `credair` (pasta `src/`). Para rodar os testes:
+
+```bash
+pytest
+```
+
+Os testes conferem cada regra de limpeza e de engenharia de atributos e verificam se o modelo continua reproduzindo os resultados publicados acima (ROC-AUC de 0,781 e limiar de 0,31). Eles também rodam automaticamente no GitHub a cada push.
 
 ## Andamento
 
