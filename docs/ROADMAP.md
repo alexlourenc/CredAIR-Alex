@@ -28,7 +28,7 @@ O projeto evolui em três blocos. Cada um só começa quando o anterior estiver 
 | 8 | Avaliação e interpretação | `feat: adiciona avaliacao e interpretacao do modelo` | ✅ |
 | 9 | Conclusão e apresentação | `docs: adiciona conclusao da analise` + `docs: adiciona roteiro da apresentacao` | ✅ |
 | 10 | Refatoração para `src/` + testes | `refactor: extrai pipeline para modulo` | ✅ |
-| 11 | Aplicação | `feat: cria aplicacao de simulacao` | ⬜ |
+| 11 | Aplicação | `feat: cria aplicacao de simulacao` | ✅ |
 
 ## Registro de decisões
 
@@ -98,3 +98,11 @@ Cada decisão importante fica registrada aqui com o contexto, a escolha feita e 
 - **Instalação:** `pyproject.toml` + linha `-e .` no `requirements.txt`. O modo editável faz alterações em `src/` valerem sem reinstalar.
 - **Testes:** `pytest` com dados pequenos montados à mão (um exemplo de cada problema P1 a P5) e um **teste de regressão** que refaz o pipeline inteiro a partir da bronze e confere ROC-AUC 0,781, recall 73,8% e limiar 0,31. Se uma mudança futura alterar os resultados, o teste avisa. Os testes rodam no GitHub Actions a cada push.
 - **Conferência:** o notebook foi reexecutado do zero depois da mudança. As saídas e os 11 gráficos ficaram idênticos aos anteriores.
+
+### D14 — Simulador publicado no Vercel, sem o scikit-learn na execução
+- **Contexto:** a aplicação precisa ser acessível por um link, para que outras pessoas testem o modelo sem instalar nada.
+- **Decisão:** página estática (`public/`) e uma função Python no Vercel (`api/simular.py`) que importa o pacote `credair` e aplica `limpar` e `criar_atributos` à proposta. A pasta `app/` prevista na D05 virou `api/` e `public/`, os nomes que o Vercel reconhece.
+- **Por que sem o scikit-learn:** com scikit-learn, scipy, pandas e numpy a função ficou com 263 MB, acima do limite do Vercel. Uma regressão logística só precisa de medianas, médias, desvios, coeficientes e limiar, que são exportados do pipeline treinado para `api/modelo_final.json` (`python -m credair.simulador`). A conta feita com esses parâmetros reproduz exatamente o `predict_proba` do scikit-learn, e a função cai para cerca de 100 MB.
+- **Alternativa descartada:** calcular tudo em JavaScript no navegador. Seria mais rápido, mas exigiria reescrever a limpeza e os atributos, criando a segunda versão das regras que a D13 quis evitar.
+- **Testes:** conferem que a probabilidade calculada com o JSON é igual à do scikit-learn, que o JSON está atualizado em relação ao treino, que a limpeza (P3 a P5) é aplicada e que a função responde e rejeita propostas inválidas.
+- **Explicação do resultado:** a página mostra a contribuição de cada variável (coeficiente × valor padronizado) em relação a uma proposta média do treino, para que a decisão não seja uma caixa-preta.
