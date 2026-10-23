@@ -19,11 +19,15 @@ CredAIR-Alex/
 │   ├── config.py       #   caminhos, semente e listas de variáveis
 │   ├── limpeza.py      #   bronze → prata
 │   ├── atributos.py    #   prata → ouro
-│   └── modelo.py       #   pipeline, métricas e escolha do limiar
+│   ├── modelo.py       #   pipeline, métricas e escolha do limiar
+│   └── simulador.py    #   avaliação de uma proposta nova (simulador)
+├── api/                # Função do simulador no Vercel + parâmetros do modelo final
+├── public/             # Página do simulador
 ├── tests/              # Testes automatizados (pytest)
 ├── reports/figures/    # Gráficos exportados para a apresentação
 ├── docs/               # Roadmap e registro de decisões
 ├── .vscode/            # Configurações e extensões recomendadas do VS Code
+├── vercel.json         # Configuração da publicação no Vercel
 ├── pyproject.toml      # Torna o pacote credair instalável
 ├── requirements.txt    # Dependências com versões fixadas (inclui o pacote credair)
 └── README.md
@@ -82,6 +86,22 @@ pytest
 ```
 
 Os testes conferem cada regra de limpeza e de engenharia de atributos e verificam se o modelo continua reproduzindo os resultados publicados acima (ROC-AUC de 0,781 e limiar de 0,31). Eles também rodam automaticamente no GitHub a cada push.
+
+## Simulador de propostas
+
+O simulador (pastas `api/` e `public/`) é uma página onde se informa uma proposta e se vê a probabilidade de inadimplência, a decisão pelo limiar de 0,31 e o que mais pesou na avaliação. Ela aplica as mesmas regras de limpeza e de atributos do pacote `credair` e é publicada no Vercel.
+
+Para testar no computador:
+
+```bash
+python api/simular.py          # depois abra http://localhost:8000
+```
+
+Se o modelo mudar, regenere os parâmetros usados pelo simulador (um teste avisa quando o arquivo fica desatualizado):
+
+```bash
+python -m credair.simulador
+```
 
 ## Andamento
 

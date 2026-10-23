@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador CredAIR</title>
+<style>
+  :root {
+    --fundo: #f6f7f9; --cartao: #ffffff; --texto: #1d2330; --suave: #5b6475; --borda: #dde1e8;
+    --azul: #2563eb; --verde: #15803d; --verde-fundo: #e8f5ec; --vermelho: #b91c1c; --vermelho-fundo: #fdecec;
+    --aviso-fundo: #fff7e0; --aviso: #8a5a00; --botao-texto: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #12151b; --cartao: #1b1f27; --texto: #e7eaf0; --suave: #9aa3b2; --borda: #2c323d;
+      --azul: #6b9cff; --verde: #4ade80; --verde-fundo: #15281c; --vermelho: #f87171; --vermelho-fundo: #2d1616;
+      --aviso-fundo: #2b2410; --aviso: #f5c451; --botao-texto: #0b1220;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .sub { color: var(--suave); margin: 0 0 24px; }
+  .cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 16px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; font-weight: 600; }
+  label span { font-weight: 400; color: var(--suave); font-size: .8rem; }
+  input { font: inherit; padding: 8px 10px; border: 1px solid var(--borda); border-radius: 8px;
+          background: var(--fundo); color: var(--texto); }
+  input:focus { outline: 2px solid var(--azul); outline-offset: 1px; }
+  button { grid-column: 1 / -1; font: inherit; font-weight: 600; padding: 10px; border: 0; border-radius: 8px;
+           background: var(--azul); color: var(--botao-texto); cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .veredito { border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .veredito.baixo { background: var(--verde-fundo); color: var(--verde); }
+  .veredito.alto { background: var(--vermelho-fundo); color: var(--vermelho); }
+  .veredito strong { display: block; font-size: 1.25rem; }
+  .numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .numeros div { border: 1px solid var(--borda); border-radius: 8px; padding: 10px 12px; }
+  .numeros small { display: block; color: var(--suave); }
+  .numeros b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .avisos { background: var(--aviso-fundo); color: var(--aviso); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: .9rem; }
+  h2 { font-size: 1rem; margin: 0 0 4px; }
+  .nota { color: var(--suave); font-size: .85rem; margin: 0 0 12px; }
+  .fator { display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 10px; margin: 6px 0; font-size: .9rem; }
+  .barra { position: relative; height: 14px; }
+  .barra::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1px solid var(--borda); }
+  .barra i { position: absolute; top: 0; height: 100%; border-radius: 3px; }
+  .erro { color: var(--vermelho); }
+  footer { color: var(--suave); font-size: .8rem; margin-top: 24px; }
+  @media (max-width: 480px) { .fator { grid-template-columns: 120px 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Simulador de risco de crédito</h1>
+  <p class="sub">Informe os dados de uma proposta para ver a probabilidade de inadimplência estimada pelo modelo CredAIR.</p>
+
+  <div class="cartao">
+    <form id="form">
+      <label>Idade<span>anos</span><input name="idade" type="number" step="1" value="35" required></label>
+      <label>Renda mensal<span>R$</span><input name="renda_mensal" type="number" step="0.01" value="4500" required></label>
+      <label>Tempo de emprego<span>anos</span><input name="tempo_emprego_anos" type="number" step="1" min="0" value="6" required></label>
+      <label>Score de crédito<span>300 a 850</span><input name="score_credito" type="number" step="1" min="0" max="1000" value="650" required></label>
+      <label>Valor solicitado<span>R$</span><input name="valor_solicitado" type="number" step="0.01" min="0" value="15000" required></label>
+      <label>Prazo<span>meses</span><input name="prazo_meses" type="number" step="1" min="1" value="36" required></label>
+      <label>Dívidas ativas<span>quantidade</span><input name="dividas_ativas" type="number" step="1" min="0" value="1" required></label>
+      <button type="submit">Simular</button>
+    </form>
+  </div>
+
+  <div id="resultado" class="cartao" hidden></div>
+
+  <footer>
+    Modelo de regressão logística treinado com 80% da base (ROC-AUC 0,781 no teste). O limiar de 0,31 foi escolhido
+    para reduzir a aprovação de maus pagadores e deve ser revisto com os custos reais do negócio.
+    Ferramenta de demonstração: não substitui uma política de crédito.
+  </footer>
+</main>
+
+<script>
+  const NOMES = {
+    idade: "Idade", renda_mensal: "Renda mensal", tempo_emprego_anos: "Tempo de emprego",
+    score_credito: "Score de crédito", valor_solicitado: "Valor solicitado", prazo_meses: "Prazo",
+    dividas_ativas: "Dívidas ativas", comprometimento_renda: "Comprometimento da renda",
+  };
+  const pct = (x) => (x * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
+  const reais = (x) => x.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const form = document.getElementById("form");
+  const caixa = document.getElementById("resultado");
+
+  form.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const botao = form.querySelector("button");
+    botao.disabled = true;
+    botao.textContent = "Calculando…";
+    const proposta = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, Number(v)]));
+    try {
+      const resposta = await fetch("/api/simular", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(proposta),
+      });
+      const dados = await resposta.json();
+      if (!resposta.ok) throw new Error(dados.erro || "Erro ao simular");
+      mostrar(dados);
+    } catch (erro) {
+      caixa.hidden = false;
+      caixa.innerHTML = `<p class="erro">${erro.message}</p>`;
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Simular";
+    }
+  });
+
+  function mostrar(r) {
+    const maior = Math.max(...r.fatores.map((f) => Math.abs(f.contribuicao)), 0.01);
+    const fatores = r.fatores.map((f) => {
+      const largura = (Math.abs(f.contribuicao) / maior) * 50;
+      const lado = f.contribuicao >= 0 ? `left:50%;background:var(--vermelho)` : `right:50%;background:var(--verde)`;
+      return `<div class="fator"><span>${NOMES[f.variavel] || f.variavel}</span>
+              <div class="barra"><i style="${lado};width:${largura}%"></i></div></div>`;
+    }).join("");
+    const avisos = r.avisos.length
+      ? `<div class="avisos">Valores tratados como ausentes pela limpeza (o modelo usa a mediana da base):
+         ${r.avisos.join("; ")}.</div>` : "";
+    caixa.hidden = false;
+    caixa.innerHTML = `
+      <div class="veredito ${r.alto_risco ? "alto" : "baixo"}">
+        <strong>${r.alto_risco ? "Alto risco de inadimplência" : "Baixo risco de inadimplência"}</strong>
+        Probabilidade estimada de ${pct(r.probabilidade)}, ${r.alto_risco ? "acima" : "abaixo"} do limiar de ${pct(r.limiar)}.
+      </div>
+      <div class="numeros">
+        <div><small>Probabilidade</small><b>${pct(r.probabilidade)}</b></div>
+        <div><small>Parcela estimada (sem juros)</small><b>${reais(r.parcela_estimada)}</b></div>
+        <div><small>Comprometimento da renda</small><b>${r.comprometimento_renda === null ? "—" : pct(r.comprometimento_renda)}</b></div>
+      </div>
+      ${avisos}
+      <h2>O que pesou na avaliação</h2>
+      <p class="nota">Comparado a uma proposta média da base: barras vermelhas aumentam o risco, verdes reduzem.</p>
+      ${fatores}`;
+  }
+</script>
+</body>
+</html>

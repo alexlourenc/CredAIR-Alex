@@ -28,3 +28,6 @@ Thumbs.db
 
 # Variáveis de ambiente / segredos
 .env
+
+# Build local do Vercel
+.vercel/
