@@ -13,13 +13,28 @@ CredAIR-Alex/
 │   ├── bronze/         # 🥉 Dado original, como recebido. Nunca é alterado.
 │   ├── silver/         # 🥈 Dado limpo e validado (gerado pelo notebook, fora do Git)
 │   └── gold/           # 🥇 Dado pronto para modelagem (gerado pelo notebook, fora do Git)
-├── notebooks/          # Notebook principal da análise (entregável)
+├── notebooks/
+│   └── analise_credito.ipynb   # Notebook principal da análise (entregável)
 ├── reports/figures/    # Gráficos exportados para a apresentação
 ├── docs/               # Roadmap e registro de decisões
 ├── .vscode/            # Configurações e extensões recomendadas do VS Code
 ├── requirements.txt    # Dependências com versões fixadas
 └── README.md
 ```
+
+## Principais resultados
+
+| Modelo | ROC-AUC (teste) | Recall da classe inadimplente |
+|---|---|---|
+| Referência: classe majoritária | 0,500 | 0% |
+| Referência: só score de crédito | 0,695 | 24% |
+| **Regressão Logística (8 variáveis)** | **0,781** | **74%** (limiar 0,31) |
+
+- **Fator de risco mais forte:** `comprometimento_renda`, a variável criada no projeto que mede a fração da renda comprometida com a parcela. Odds ratio de 2,78 por desvio-padrão.
+- **Fator de proteção mais forte:** `score_credito`. Odds ratio de 0,44 por desvio-padrão.
+- `estado`, `escolaridade` e `finalidade` não mostraram associação significativa e ficaram fora do modelo final.
+
+Detalhes no [notebook](notebooks/analise_credito.ipynb), no [registro de decisões](docs/ROADMAP.md) e no [roteiro da apresentação](docs/APRESENTACAO.md).
 
 ## Arquitetura de dados: modelo medalhão
 
@@ -51,7 +66,7 @@ source .venv/bin/activate      # Linux/macOS
 pip install -r requirements.txt
 ```
 
-Depois, abra o notebook em `notebooks/` no VS Code e selecione o kernel do `.venv`.
+Depois, abra `notebooks/analise_credito.ipynb` no VS Code, selecione o kernel do `.venv` e use **Run All**. O notebook gera as camadas prata e ouro em `data/` e os gráficos em `reports/figures/`.
 
 ## Andamento
 

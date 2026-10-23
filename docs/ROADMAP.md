@@ -18,15 +18,15 @@ O projeto evolui em três blocos. Cada um só começa quando o anterior estiver 
 |---|---|---|---|
 | 0 | Setup do projeto | `chore: estrutura inicial do projeto` | ✅ |
 | 0.1 | Estrutura em camadas (medalhão) | `chore: adota estrutura de dados em camadas medalhao` | ✅ |
-| 1 | Entendimento do problema | `docs: entendimento do problema` | ⬜ |
-| 2 | Diagnóstico de qualidade dos dados | `feat: diagnostico de qualidade dos dados` | ⬜ |
-| 3 | Limpeza e preparação → gera camada 🥈 prata | `feat: realiza limpeza dos dados` | ⬜ |
-| 4 | Análise exploratória | `feat: adiciona analise exploratoria` | ⬜ |
-| 5 | Engenharia de atributos → gera camada 🥇 ouro | `feat: cria atributos para o modelo` | ⬜ |
-| 6 | Preparação para modelagem | `feat: prepara dados para modelagem` | ⬜ |
-| 7 | Modelagem (baseline + Regressão Logística) | `feat: desenvolve modelo` | ⬜ |
-| 8 | Avaliação e interpretação | `feat: adiciona avaliacao do modelo` | ⬜ |
-| 9 | Conclusão e apresentação | `docs: adiciona conclusao e apresentacao` | ⬜ |
+| 1 | Entendimento do problema | `feat: inicia analise com entendimento do problema` | ✅ |
+| 2 | Diagnóstico de qualidade dos dados | `feat: adiciona diagnostico de qualidade dos dados` | ✅ |
+| 3 | Limpeza e preparação → gera camada 🥈 prata | `feat: realiza limpeza dos dados e gera camada prata` | ✅ |
+| 4 | Análise exploratória | `feat: adiciona analise exploratoria` | ✅ |
+| 5 | Engenharia de atributos → gera camada 🥇 ouro | `feat: cria atributos e gera camada ouro` | ✅ |
+| 6 | Preparação para modelagem | `feat: prepara dados para modelagem` | ✅ |
+| 7 | Modelagem (baseline + Regressão Logística) | `feat: desenvolve modelo de regressao logistica` | ✅ |
+| 8 | Avaliação e interpretação | `feat: adiciona avaliacao e interpretacao do modelo` | ✅ |
+| 9 | Conclusão e apresentação | `docs: adiciona conclusao da analise` + `docs: adiciona roteiro da apresentacao` | ✅ |
 | 10 | Refatoração para `src/` + testes | `refactor: extrai pipeline para modulo` | ⬜ |
 | 11 | Aplicação | `feat: cria aplicacao de simulacao` | ⬜ |
 
@@ -68,3 +68,26 @@ Cada decisão importante fica registrada aqui com o contexto, a escolha feita e 
 - **Formato:** Parquet nas camadas prata e ouro, porque preserva os tipos das colunas (o CSV não guarda tipos: ao reler, o pandas precisa adivinhá-los, e uma categoria ou data pode voltar como texto). Exige a dependência `pyarrow`.
 - **Versionamento:** prata e ouro ficam fora do Git, pois são reproduzíveis a partir da bronze executando o notebook.
 - **⚠️ Regra contra vazamento de dados (data leakage):** a camada ouro guarda apenas transformações **determinísticas, linha a linha** (ex.: `comprometimento_renda = parcela / renda`). Transformações que **aprendem estatísticas** dos dados, como imputação pela mediana, padronização e *one-hot encoding*, ficam no `Pipeline` do scikit-learn e são ajustadas **somente no conjunto de treino**, depois da divisão treino/teste. Se ficassem na ouro, o modelo "veria" informações do teste e as métricas sairiam otimistas.
+
+### D07 — Problemas de qualidade marcados como ausentes, e não removidos nem "corrigidos"
+- **Contexto:** idades de 210 a 750 anos, tempo de emprego ≥ idade e rendas artificiais (R$ 100 a R$ 550, de 50 em 50).
+- **Decisão:** converter esses valores em `NaN` e imputar pela **mediana dentro do pipeline**, ajustada só no treino.
+- **Alternativas descartadas:** remover a linha (perderia as outras colunas, que estão corretas) e dividir a idade por 10 (suposição que gera novas incoerências com o tempo de emprego).
+- **Mantidos:** ~690 casos de início de trabalho antes dos 14 anos, para não enviesar a base contra os jovens (registrado como limitação), e valores repetidos plausíveis (renda de R$ 900 e R$ 30 mil, valor de R$ 50 mil).
+
+### D08 — Variável derivada `comprometimento_renda`
+- **Construção:** `(valor_solicitado / prazo_meses) / renda_mensal`, a fração da renda comprometida com a parcela, sem juros.
+- **Motivo:** explica o "paradoxo do prazo" (prazos curtos geram parcelas pesadas). É a 2ª variável mais discriminante sozinha (AUC 0,667) e eleva a AUC do modelo de 0,769 para 0,793 na validação cruzada.
+
+### D09 — `estado` excluído do modelo
+- **Motivo:** sem associação significativa (qui-quadrado, p = 0,60), 26 *dummies* com risco de sobreajuste e **risco ético e regulatório** de discriminação regional. Testado na validação cruzada: não melhora o modelo (AUC 0,788).
+
+### D10 — Modelo final só com variáveis numéricas (parcimônia)
+- **Motivo:** retirar `escolaridade` e `finalidade` não altera o desempenho (AUC 0,794 contra 0,793, dentro do desvio). O modelo mais simples é mais explicável e menos sujeito a sobreajuste.
+
+### D11 — Configurações comparadas com validação cruzada; teste usado só no final
+- **Motivo:** escolher o modelo pelo teste o tornaria otimista. Validação cruzada estratificada com 5 partes no treino, métrica ROC-AUC (independe do limiar).
+
+### D12 — Limiar de decisão escolhido no treino (F1 máximo nas previsões fora da amostra)
+- **Resultado:** limiar de 0,31. No teste, o recall sobe de 45% para 74%, e a precisão cai de 68% para 56%.
+- **Motivo:** o falso negativo (aprovar um mau pagador) é o erro mais caro. O limiar final é uma **decisão de negócio** e deve ser revisto com os custos reais.
