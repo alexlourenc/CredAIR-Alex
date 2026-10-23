@@ -3,7 +3,7 @@
 **Formato:** reunião individual no Microsoft Teams, com cerca de 15 minutos de fala.
 **Fio condutor:** contar a **história da análise**, deixando claro o **porquê de cada decisão**.
 
-Os gráficos citados estão em `reports/figures/`.
+Os gráficos citados estão em `reports/figures/`. Os slides prontos, com notas do apresentador, estão em [`apresentacao_credair.pptx`](apresentacao_credair.pptx).
 
 ---
 

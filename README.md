@@ -16,7 +16,7 @@ CredAIR-Alex/
 ├── notebooks/
 │   └── analise_credito.ipynb   # Notebook principal da análise (entregável)
 ├── reports/figures/    # Gráficos exportados para a apresentação
-├── docs/               # Roadmap e registro de decisões
+├── docs/               # Roadmap, decisões, roteiro e slides da apresentação
 ├── .vscode/            # Configurações e extensões recomendadas do VS Code
 ├── requirements.txt    # Dependências com versões fixadas
 └── README.md
@@ -34,7 +34,7 @@ CredAIR-Alex/
 - **Fator de proteção mais forte:** `score_credito`. Odds ratio de 0,44 por desvio-padrão.
 - `estado`, `escolaridade` e `finalidade` não mostraram associação significativa e ficaram fora do modelo final.
 
-Detalhes no [notebook](notebooks/analise_credito.ipynb), no [registro de decisões](docs/ROADMAP.md) e no [roteiro da apresentação](docs/APRESENTACAO.md).
+Detalhes no [notebook](notebooks/analise_credito.ipynb), no [registro de decisões](docs/ROADMAP.md) no [roteiro da apresentação](docs/APRESENTACAO.md) e nos [slides](docs/apresentacao_credair.pptx).
 
 ## Arquitetura de dados: modelo medalhão
 
