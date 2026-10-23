@@ -3,7 +3,7 @@
 **Formato:** reunião individual no Microsoft Teams, com cerca de 15 minutos de fala.
 **Fio condutor:** contar a **história da análise**, deixando claro o **porquê de cada decisão**.
 
-Os gráficos citados estão em `reports/figures/`.
+Os slides estão em [`apresentacao.pdf`](apresentacao.pdf). Os gráficos citados estão em `reports/figures/`.
 
 ---
 
@@ -40,13 +40,13 @@ Os gráficos citados estão em `reports/figures/`.
 
 ## 6. Modelagem (2 min)
 - Treino/teste 80/20 **estratificado**. O teste só é usado no final.
-- **Referências:** classe majoritária (AUC 0,50) e regra só com score (AUC 0,68).
+- **Referências:** classe majoritária (AUC 0,50) e regra só com score (AUC 0,68 na validação cruzada; no teste, 0,695).
 - **Validação cruzada (5 partes)** para comparar as configurações:
   - incluir `estado` não ajuda e ainda tem **risco ético**, então ficou fora;
   - escolaridade e finalidade não acrescentam nada, então ficou o **modelo mais simples (parcimônia)**, com 8 variáveis numéricas.
 
 ## 7. Resultados (3 min)
-- 📊 `07_curva_roc.png`: **AUC de 0,781 no teste**, contra 0,695 da regra só com score. O valor fica próximo do 0,794 da validação cruzada, ou seja, o modelo **generaliza**.
+- 📊 `07_curva_roc.png`: **AUC de 0,781 no teste**, contra 0,695 da regra só com score no mesmo conjunto de teste. O valor fica próximo do 0,794 da validação cruzada, ou seja, o modelo **generaliza**.
 - 📊 `08_matriz_confusao_05.png`: no limiar 0,5, o modelo pega só **45%** dos inadimplentes.
 - 📊 `09_precisao_recall_limiar.png` e `10_matriz_confusao_sugerido.png`: com o **limiar 0,31**, escolhido no treino e não no teste, o modelo pega **74%** dos inadimplentes. A precisão cai de 68% para 56%.
 - **O limiar é uma decisão de negócio.** A sugestão é mandar os casos sinalizados para **análise manual** ou ajustar as condições, em vez de recusar automaticamente.
