@@ -32,7 +32,11 @@ def test_usa_o_limiar_do_notebook(parametros):
 def test_json_do_vercel_esta_atualizado(parametros):
     # Se este teste falhar, rode `python -m credair.simulador` para regenerar o arquivo
     salvo = json.loads((RAIZ / "api" / "modelo_final.json").read_text())
-    assert salvo == pytest.approx(parametros)
+    assert salvo.keys() == parametros.keys()
+    assert salvo["variaveis"] == parametros["variaveis"]
+    for chave in salvo.keys() - {"variaveis"}:
+        # Tolerância pequena: o treino pode variar na última casa decimal entre máquinas
+        assert salvo[chave] == pytest.approx(parametros[chave], rel=1e-6), chave
 
 
 @pytest.mark.parametrize("ajuste", [{}, {"score_credito": 400, "dividas_ativas": 5},
