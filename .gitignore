@@ -6,6 +6,10 @@ venv/
 __pycache__/
 *.py[cod]
 
+# Metadados do pacote instalado em modo editável e cache do pytest
+*.egg-info/
+.pytest_cache/
+
 # Checkpoints do Jupyter
 .ipynb_checkpoints/
 
